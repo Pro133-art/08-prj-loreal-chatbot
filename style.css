@@ -7,6 +7,23 @@
   padding: 0;
 }
 
+:root {
+  /* Reusable design tokens keep color/shadow choices centralized and easier to maintain. */
+  --color-black: #000;
+  --color-white: #fff;
+  --color-text: #1f1f1f;
+  --color-muted: #666;
+  --color-muted-hover: #666666;
+  --color-surface: #fafafa;
+  --color-surface-soft: #f1f1f1;
+  --color-assistant-bubble: #e9ecef;
+  --color-input-border: #ccc;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.12);
+  --focus-outline: 2px solid #000;
+  --focus-offset: 2px;
+  --radius-pill: 999px;
+}
+
 /* Load a custom font file for the main L'Oreal heading. */
 @font-face {
   font-family: "L'Oreal Royale";
@@ -21,7 +38,7 @@
 /* Main page canvas and global background treatment */
 body {
   font-family: "Montserrat", Arial, Helvetica, sans-serif;
-  color: #1f1f1f;
+  color: var(--color-text);
   display: flex;
   justify-content: center;
   min-height: 100vh;
@@ -381,15 +398,15 @@ body::after {
 }
 
 .toolbar-btn {
-  border: 1px solid #000;
-  background: #fff;
-  color: #000;
+  border: 1px solid var(--color-black);
+  background: var(--color-white);
+  color: var(--color-black);
   font-size: 14px;
   font-weight: 600;
   padding: 10px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-sm);
   transition:
     background 0.2s,
     color 0.2s,
@@ -397,21 +414,22 @@ body::after {
 }
 
 .toolbar-btn:hover {
-  background: #f1f1f1;
+  background: var(--color-surface-soft);
   transform: translateY(-1px);
 }
 
 .toolbar-btn:focus,
 .chat-library-select:focus {
-  outline: 2px solid #000;
-  outline-offset: 2px;
+  /* Strong visible focus ring improves keyboard accessibility. */
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
 }
 
 .chat-library-select {
   min-width: 220px;
-  border: 1px solid #000;
-  background: #fff;
-  color: #000;
+  border: 1px solid var(--color-black);
+  background: var(--color-white);
+  color: var(--color-black);
   font-size: 14px;
   font-weight: 600;
   padding: 10px 12px;
@@ -419,13 +437,14 @@ body::after {
 }
 
 .chat-window {
+  /* Fixed height + vertical scrolling keeps chat layout stable as messages grow. */
   height: 360px;
-  border: 1px solid #000;
+  border: 1px solid var(--color-black);
   padding: 20px;
   font-size: 18px;
   line-height: 1.5;
   overflow-y: auto;
-  background: #fafafa;
+  background: var(--color-surface);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -435,7 +454,7 @@ body::after {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-  scrollbar-color: #9f9f9f #f1f1f1;
+  scrollbar-color: #9f9f9f var(--color-surface-soft);
 }
 
 /* WebKit scrollbar styling (Chrome, Edge, Safari) */
@@ -444,14 +463,15 @@ body::after {
 }
 
 .chat-window::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 999px;
+  background: var(--color-surface-soft);
+  border-radius: var(--radius-pill);
 }
 
 .chat-window::-webkit-scrollbar-thumb {
+  /* Subtle contrast makes the scrollbar discoverable without stealing attention. */
   background: linear-gradient(180deg, #b5b5b5 0%, #8f8f8f 100%);
-  border-radius: 999px;
-  border: 2px solid #f1f1f1;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--color-surface-soft);
 }
 
 .chat-window::-webkit-scrollbar-thumb:hover {
@@ -503,7 +523,7 @@ body::after {
   max-width: 78%;
   border-radius: 16px;
   padding: 10px 14px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-sm);
   transform-origin: bottom center;
 }
 
@@ -523,14 +543,16 @@ body::after {
 }
 
 .message-row.user .chat-bubble {
-  background: #000;
-  color: #fff;
+  /* User messages are dark and right-aligned for quick visual differentiation. */
+  background: var(--color-black);
+  color: var(--color-white);
   border-bottom-right-radius: 4px;
 }
 
 .message-row.assistant .chat-bubble {
-  background: #e9ecef;
-  color: #1f1f1f;
+  /* Assistant messages use a light card style and left alignment for contrast. */
+  background: var(--color-assistant-bubble);
+  color: var(--color-text);
   border-bottom-left-radius: 4px;
 }
 
@@ -559,9 +581,10 @@ body::after {
 }
 
 .chat-form input {
+  /* Input grows to fill available row space so typing remains comfortable. */
   flex: 1;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-input-border);
   font-size: 18px;
   transition:
     border-color 0.2s ease,
@@ -570,15 +593,16 @@ body::after {
 }
 
 .chat-form input:focus {
-  outline: 2px solid #000;
-  outline-offset: 2px;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
   transform: translateY(-1px);
 }
 
 .chat-form button {
+  /* Fixed square send button keeps icon alignment predictable across devices. */
   font-size: 18px;
-  background: #000;
-  color: #fff;
+  background: var(--color-black);
+  color: var(--color-white);
   border: none;
   padding: 12px;
   width: 48px;
@@ -604,8 +628,8 @@ body::after {
 }
 
 .chat-form button:focus {
-  outline: 2px solid #000;
-  outline-offset: 2px;
+  outline: var(--focus-outline);
+  outline-offset: var(--focus-offset);
 }
 
 .chat-form button:active {
@@ -636,6 +660,7 @@ body::after {
 
 /* Mobile layout tweaks */
 @media (max-width: 640px) {
+  /* Stack controls and reduce spacing for smaller screens. */
   body::after {
     inset: 46% -18% -34%;
     transform: perspective(740px) rotateX(70deg);
@@ -670,6 +695,7 @@ body::after {
 
 /* Utility class for accessible labels hidden visually */
 .visually-hidden {
+  /* Keeps text available to screen readers while hiding it visually. */
   position: absolute;
   width: 1px;
   height: 1px;
@@ -688,7 +714,7 @@ body::after {
   margin: 60px 0 40px;
   text-align: center;
   font-size: 14px;
-  color: #666;
+  color: var(--color-muted);
 }
 
 .site-footer nav {
@@ -696,11 +722,12 @@ body::after {
 }
 
 .site-footer a {
+  /* Links stay minimal so footer remains secondary to the chat experience. */
   margin: 0 8px;
-  color: #000;
+  color: var(--color-black);
   text-decoration: none;
 }
 
 .site-footer a:hover {
-  color: #666666;
+  color: var(--color-muted-hover);
 }

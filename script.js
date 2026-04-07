@@ -18,7 +18,10 @@ const legacyHistoryStorageKey = "lorealChatHistory";
 const libraryStorageKey = "lorealChatLibrary";
 const activeConversationIdKey = "lorealActiveConversationId";
 const maxHistoryMessages = 12;
+const userDisplayName = "You";
 const assistantDisplayName = "Ava";
+const userRole = "user";
+const assistantRole = "assistant";
 
 // This sets the assistant's role and boundaries for every API request.
 const systemMessage = {
@@ -71,6 +74,24 @@ const lorealKeywords = [
 
 /* ---------- Storage and data helpers ---------- */
 
+// Returns one shared timestamp format so all saved records are consistent.
+function getTimestamp() {
+  return new Date().toISOString();
+}
+
+// Finds a single conversation by ID to avoid repeating lookup logic everywhere.
+function getConversationById(conversationId) {
+  return conversationLibrary.find(
+    (conversation) => conversation.id === conversationId,
+  );
+}
+
+// Convenience helper for reading the currently selected conversation object.
+function getActiveConversation() {
+  return getConversationById(activeConversationId);
+}
+
+// Keeps only valid user/assistant message objects before rendering or saving.
 function sanitizeMessages(messages) {
   if (!Array.isArray(messages)) {
     return [];
@@ -79,12 +100,13 @@ function sanitizeMessages(messages) {
   return messages.filter(
     (message) =>
       message &&
-      (message.role === "user" || message.role === "assistant") &&
+      (message.role === userRole || message.role === assistantRole) &&
       typeof message.content === "string" &&
       message.content.trim() !== "",
   );
 }
 
+// Detects whether a title likely came from the user instead of default auto-naming.
 function isLikelyCustomTitle(title) {
   return (
     !/^Chat \d+$/.test(title || "") &&
@@ -93,6 +115,7 @@ function isLikelyCustomTitle(title) {
   );
 }
 
+// Loads saved conversations from localStorage and normalizes missing fields.
 function loadConversationLibrary() {
   const savedLibrary = localStorage.getItem(libraryStorageKey);
   if (!savedLibrary) {
@@ -113,8 +136,8 @@ function loadConversationLibrary() {
           typeof conversation.isCustomTitle === "boolean"
             ? conversation.isCustomTitle
             : isLikelyCustomTitle(conversation.title),
-        createdAt: conversation.createdAt || new Date().toISOString(),
-        updatedAt: conversation.updatedAt || new Date().toISOString(),
+        createdAt: conversation.createdAt || getTimestamp(),
+        updatedAt: conversation.updatedAt || getTimestamp(),
         messages: sanitizeMessages(conversation.messages),
       }))
       .filter((conversation) => conversation.id);
@@ -124,21 +147,24 @@ function loadConversationLibrary() {
   }
 }
 
+// Persists the full chat library so chat switching survives refreshes.
 function saveConversationLibrary() {
   localStorage.setItem(libraryStorageKey, JSON.stringify(conversationLibrary));
 }
 
+// Creates a new empty conversation record with a unique ID and timestamps.
 function createConversation(title) {
   return {
     id: `chat-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
     title,
     isCustomTitle: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: getTimestamp(),
+    updatedAt: getTimestamp(),
     messages: [],
   };
 }
 
+// Generates a readable chat title from the first user message topic.
 function createTitleFromUserMessage(messageText) {
   const text = messageText.toLowerCase();
 
@@ -189,17 +215,16 @@ function createTitleFromUserMessage(messageText) {
   return firstWords.length > 40 ? `${firstWords.slice(0, 40)}...` : firstWords;
 }
 
+// Auto-updates title only when the user has not manually named the chat.
 function maybeAutoNameActiveConversation() {
-  const activeConversation = conversationLibrary.find(
-    (conversation) => conversation.id === activeConversationId,
-  );
+  const activeConversation = getActiveConversation();
 
   if (!activeConversation || activeConversation.isCustomTitle) {
     return;
   }
 
   const firstUserMessage = conversationHistory.find(
-    (message) => message.role === "user",
+    (message) => message.role === userRole,
   );
 
   if (!firstUserMessage) {
@@ -211,6 +236,7 @@ function maybeAutoNameActiveConversation() {
   );
 }
 
+// Migrates old single-history storage into the newer multi-chat library format.
 function migrateLegacyHistoryIfNeeded() {
   const savedHistory = localStorage.getItem(legacyHistoryStorageKey);
   if (!savedHistory) {
@@ -241,10 +267,9 @@ function migrateLegacyHistoryIfNeeded() {
   }
 }
 
+// Saves the in-memory active history back into the active conversation record.
 function saveActiveConversationHistory() {
-  const activeConversation = conversationLibrary.find(
-    (conversation) => conversation.id === activeConversationId,
-  );
+  const activeConversation = getActiveConversation();
 
   if (!activeConversation) {
     return;
@@ -252,20 +277,19 @@ function saveActiveConversationHistory() {
 
   activeConversation.messages = [...conversationHistory];
   maybeAutoNameActiveConversation();
-  activeConversation.updatedAt = new Date().toISOString();
+  activeConversation.updatedAt = getTimestamp();
   saveConversationLibrary();
   renderConversationLibrary();
 }
 
 /* ---------- Rendering ---------- */
 
+// Switches active conversation, stores selection, then refreshes UI from that chat.
 function setActiveConversation(conversationId) {
   activeConversationId = conversationId;
   localStorage.setItem(activeConversationIdKey, activeConversationId);
 
-  const activeConversation = conversationLibrary.find(
-    (conversation) => conversation.id === activeConversationId,
-  );
+  const activeConversation = getActiveConversation();
 
   conversationHistory = activeConversation
     ? [...activeConversation.messages]
@@ -274,6 +298,7 @@ function setActiveConversation(conversationId) {
   renderConversationHistory();
 }
 
+// Rebuilds the select dropdown from the latest conversation library state.
 function renderConversationLibrary() {
   chatLibrarySelect.innerHTML = "";
 
@@ -300,14 +325,15 @@ function renderConversationHistory() {
   }
 
   conversationHistory.forEach((message) => {
-    const sender = message.role === "user" ? "You" : assistantDisplayName;
+    const sender =
+      message.role === userRole ? userDisplayName : assistantDisplayName;
     addMessage(sender, message.content, false);
   });
 }
 
 // Creates one bubble row and appends it to the chat window.
 function addMessage(sender, text, shouldAnimate = true) {
-  const isUser = sender === "You";
+  const isUser = sender === userDisplayName;
 
   const row = document.createElement("div");
   row.className = `message-row ${isUser ? "user" : "assistant"}`;
@@ -346,18 +372,27 @@ function addMessage(sender, text, shouldAnimate = true) {
 
 /* ---------- Relevance and API helpers ---------- */
 
+// Basic scope guard: only treat prompts as relevant if they include beauty keywords.
 function isLorealRelevant(question) {
   const normalizedQuestion = question.toLowerCase();
   return lorealKeywords.some((word) => normalizedQuestion.includes(word));
 }
 
+// Allows follow-up questions if the current chat already established beauty context.
 function hasPreviousLorealContext() {
   const userMessages = conversationHistory.filter(
-    (message) => message.role === "user",
+    (message) => message.role === userRole,
   );
   return userMessages.some((message) => isLorealRelevant(message.content));
 }
 
+// Stores one user+assistant exchange together so history stays in correct order.
+function saveConversationTurn(question, reply) {
+  conversationHistory.push({ role: userRole, content: question });
+  conversationHistory.push({ role: assistantRole, content: reply });
+}
+
+// Builds OpenAI-compatible messages using system prompt + recent chat context.
 function buildMessagesForApi(currentQuestion) {
   const recentHistory = conversationHistory.slice(-maxHistoryMessages);
 
@@ -371,16 +406,17 @@ function buildMessagesForApi(currentQuestion) {
   ];
 }
 
+// Adds a polite refusal when the message is outside allowed product/beauty scope.
 function addOutOfScopeReply(question) {
   const outOfScopeReply =
     "I can help with L'Oreal products, skincare, makeup, haircare, beauty routines, and product pricing/deals/discount questions. Please ask a L'Oreal beauty-related question.";
 
   addMessage(assistantDisplayName, outOfScopeReply);
-  conversationHistory.push({ role: "user", content: question });
-  conversationHistory.push({ role: "assistant", content: outOfScopeReply });
+  saveConversationTurn(question, outOfScopeReply);
   saveActiveConversationHistory();
 }
 
+// Calls the worker endpoint and extracts the assistant message from the API result.
 async function fetchAssistantReply(question) {
   const response = await fetch(workerUrl, {
     method: "POST",
@@ -405,6 +441,7 @@ async function fetchAssistantReply(question) {
 
 /* ---------- Startup ---------- */
 
+// Bootstraps app state from localStorage and ensures one conversation always exists.
 function initializeApp() {
   conversationLibrary = loadConversationLibrary();
   migrateLegacyHistoryIfNeeded();
@@ -429,23 +466,24 @@ function initializeApp() {
 
 /* ---------- Event handlers ---------- */
 
-chatLibrarySelect.addEventListener("change", (event) => {
+// Runs when user picks a different chat in the dropdown.
+function handleConversationChange(event) {
   setActiveConversation(event.target.value);
-});
+}
 
-newChatBtn.addEventListener("click", () => {
+// Creates a fresh chat and immediately switches focus to it.
+function handleNewChat() {
   const nextChatNumber = conversationLibrary.length + 1;
   const newConversation = createConversation(`Chat ${nextChatNumber}`);
   conversationLibrary.unshift(newConversation);
   saveConversationLibrary();
   setActiveConversation(newConversation.id);
   userInput.focus();
-});
+}
 
-saveChatBtn.addEventListener("click", () => {
-  const activeConversation = conversationLibrary.find(
-    (conversation) => conversation.id === activeConversationId,
-  );
+// Lets the user rename the active chat for easier recall later.
+function handleSaveChat() {
+  const activeConversation = getActiveConversation();
 
   if (!activeConversation) {
     return;
@@ -458,21 +496,20 @@ saveChatBtn.addEventListener("click", () => {
 
   activeConversation.title = newTitle.trim() || activeConversation.title;
   activeConversation.isCustomTitle = true;
-  activeConversation.updatedAt = new Date().toISOString();
+  activeConversation.updatedAt = getTimestamp();
   saveConversationLibrary();
   renderConversationLibrary();
-});
+}
 
-deleteChatBtn.addEventListener("click", () => {
+// Deletes the selected chat with confirmation and keeps at least one chat available.
+function handleDeleteChat() {
   if (conversationLibrary.length === 0) {
     return;
   }
 
   const selectedConversationId =
     chatLibrarySelect.value || activeConversationId;
-  const selectedConversation = conversationLibrary.find(
-    (conversation) => conversation.id === selectedConversationId,
-  );
+  const selectedConversation = getConversationById(selectedConversationId);
 
   if (!selectedConversation) {
     alert("Please select a chat from the list first.");
@@ -507,9 +544,10 @@ deleteChatBtn.addEventListener("click", () => {
   }
 
   userInput.focus();
-});
+}
 
-chatForm.addEventListener("submit", async (event) => {
+// Handles send flow: validate input, scope-check, call API, then persist the turn.
+async function handleChatSubmit(event) {
   event.preventDefault();
 
   const question = userInput.value.trim();
@@ -517,7 +555,7 @@ chatForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  addMessage("You", question);
+  addMessage(userDisplayName, question);
   userInput.value = "";
 
   // Allow off-topic follow-ups only when the conversation already has beauty context.
@@ -531,8 +569,7 @@ chatForm.addEventListener("submit", async (event) => {
     const reply = await fetchAssistantReply(question);
     addMessage(assistantDisplayName, reply);
 
-    conversationHistory.push({ role: "user", content: question });
-    conversationHistory.push({ role: "assistant", content: reply });
+    saveConversationTurn(question, reply);
     saveActiveConversationHistory();
   } catch (error) {
     addMessage(
@@ -541,6 +578,12 @@ chatForm.addEventListener("submit", async (event) => {
     );
     console.error("API error:", error);
   }
-});
+}
+
+chatLibrarySelect.addEventListener("change", handleConversationChange);
+newChatBtn.addEventListener("click", handleNewChat);
+saveChatBtn.addEventListener("click", handleSaveChat);
+deleteChatBtn.addEventListener("click", handleDeleteChat);
+chatForm.addEventListener("submit", handleChatSubmit);
 
 initializeApp();
