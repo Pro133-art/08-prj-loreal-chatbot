@@ -1,38 +1,421 @@
-/* —— basic reset —— */
+/* =========================================================
+   1) Base reset and typography
+   ========================================================= */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* —— body + fonts —— */
-body {
-  font-family: "Montserrat", Arial, Helvetica, sans-serif;
-  color: #333;
-  display: flex;
-  justify-content: center;
+/* Load a custom font file for the main L'Oreal heading. */
+@font-face {
+  font-family: "L'Oreal Royale";
+  src:
+    url("./fonts/LorealEssentielle-Regular.woff2") format("woff2"),
+    url("./fonts/LorealEssentielle-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
+/* Main page canvas and global background treatment */
+body {
+  font-family: "Montserrat", Arial, Helvetica, sans-serif;
+  color: #1f1f1f;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  background:
+    radial-gradient(
+      circle at 50% -18%,
+      rgba(255, 206, 112, 0.24),
+      transparent 44%
+    ),
+    linear-gradient(180deg, #060606 0%, #020202 44%, #000 100%);
+  background-attachment: fixed;
+}
+
+/* Ambient overlays that add depth on top of the base gradient */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::before {
+  background:
+    conic-gradient(
+      from 184deg at 20% -10%,
+      transparent 0deg,
+      rgba(255, 213, 128, 0.22) 20deg,
+      transparent 46deg
+    ),
+    conic-gradient(
+      from -8deg at 80% -12%,
+      transparent 0deg,
+      rgba(255, 213, 128, 0.2) 22deg,
+      transparent 45deg
+    ),
+    radial-gradient(circle at 50% 6%, rgba(255, 213, 128, 0.2), transparent 34%);
+  animation: spotlight-sweep 14s ease-in-out infinite alternate;
+}
+
+body::after {
+  inset: 36% -10% -26%;
+  opacity: 0.35;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 216, 133, 0) 0%,
+      rgba(255, 216, 133, 0.06) 28%,
+      rgba(255, 216, 133, 0.18) 100%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 9%,
+      rgba(255, 214, 124, 0.28) 9.2%,
+      transparent 9.7%
+    );
+  transform: perspective(900px) rotateX(68deg);
+  transform-origin: top center;
+  animation: runway-glow 8s ease-in-out infinite;
+}
+
+.eternal-circles {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.eternal-circles .circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(249, 199, 89, 0.7);
+  box-shadow:
+    0 0 18px rgba(249, 199, 89, 0.55),
+    inset 0 0 14px rgba(255, 226, 140, 0.35);
+  transform-origin: center;
+  mix-blend-mode: screen;
+}
+
+.circle-1 {
+  width: 280px;
+  height: 280px;
+  top: 8%;
+  left: 6%;
+  animation: spin-clockwise 16s linear infinite;
+}
+
+.circle-2 {
+  width: 190px;
+  height: 190px;
+  top: 18%;
+  right: 12%;
+  animation: spin-counter 11s linear infinite;
+}
+
+.circle-3 {
+  width: 340px;
+  height: 340px;
+  bottom: 6%;
+  right: 6%;
+  animation: spin-clockwise 22s linear infinite;
+}
+
+.circle-4 {
+  width: 130px;
+  height: 130px;
+  bottom: 18%;
+  left: 20%;
+  animation: spin-counter 8s linear infinite;
+}
+
+.circle-5 {
+  width: 220px;
+  height: 220px;
+  top: 44%;
+  left: 10%;
+  animation: spin-clockwise 13s linear infinite;
+}
+
+.circle-6 {
+  width: 110px;
+  height: 110px;
+  top: 62%;
+  right: 24%;
+  animation: spin-counter 7s linear infinite;
+}
+
+.circle-7 {
+  width: 260px;
+  height: 260px;
+  top: 4%;
+  left: 40%;
+  animation: spin-clockwise 19s linear infinite;
+}
+
+/* =========================================================
+  2) Background motion keyframes
+  ========================================================= */
+@keyframes spin-clockwise {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-counter {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes spotlight-sweep {
+  0% {
+    filter: brightness(0.82);
+    transform: translateX(-1.8%) scale(1);
+  }
+  50% {
+    filter: brightness(1.08);
+    transform: translateX(0.8%) scale(1.02);
+  }
+  100% {
+    filter: brightness(0.9);
+    transform: translateX(1.9%) scale(1);
+  }
+}
+
+@keyframes runway-glow {
+  0%,
+  100% {
+    opacity: 0.26;
+  }
+  50% {
+    opacity: 0.42;
+  }
+}
+
+/* =========================================================
+  3) Main layout shell
+  ========================================================= */
 .page-wrapper {
   width: 90%;
   max-width: 900px;
+  background: rgba(255, 251, 241, 0.9);
+  border: 1px solid rgba(236, 191, 101, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 18px;
+  padding: 10px 28px 0;
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.45),
+    0 2px 0 rgba(236, 191, 101, 0.48) inset,
+    0 0 0 1px rgba(120, 85, 31, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  margin: 20px 0;
 }
 
-/* header */
+/* Header and brand lockup */
 .site-header {
   text-align: center;
   padding-top: 50px;
 }
 
 .site-title {
-  font-size: 22px;
+  font-family:
+    "L'Oreal Royale", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(60px, 7.5vw, 84px);
   font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  margin-bottom: 10px;
+  color: #151515;
+  text-transform: uppercase;
+  display: inline-block;
+  transform: scaleX(1.28);
+  transform-origin: center;
+}
+
+.site-title-rest {
+  display: inline-block;
+  font-size: calc(1em + 10px);
+  font-weight: inherit;
+  line-height: 1;
+}
+
+.site-title-o {
+  display: inline-block;
+  font-size: 1em;
+  font-weight: inherit;
+  line-height: 1;
+  vertical-align: 0.11em;
+  margin-right: -0.17em;
+  margin-left: -0.15em;
+  transform: scale(1.4);
+  transform-origin: center;
+}
+
+.site-title-rest-end {
+  margin-left: -0.1em;
+}
+
+.site-subtitle {
+  font-size: 35px;
+  font-weight: 300;
+  color: #b98227;
   margin-bottom: 10px;
 }
 
-/* chat window */
+.subtitle-name {
+  display: inline-block;
+  position: relative;
+  font-weight: 700;
+  color: #f2b45f;
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 1px 0 rgba(255, 239, 200, 0.8),
+    0 0 5px rgba(244, 188, 78, 0.35);
+  will-change: transform, text-shadow, color;
+  animation: ava-ai-glow 4.2s cubic-bezier(0.42, 0, 0.25, 1) infinite;
+}
+
+.subtitle-name::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  width: 70%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f5cf86 0%, #ffdca0 55%, #f5cf86 100%);
+  transform: translateX(-50%) scaleX(0.8);
+  opacity: 0.5;
+  filter: blur(0.2px);
+  will-change: transform, opacity;
+  animation: ava-ai-line 4.2s cubic-bezier(0.42, 0, 0.25, 1) infinite;
+}
+
+/* Soft pulse effect for the assistant name in the heading */
+@keyframes ava-ai-glow {
+  0%,
+  100% {
+    color: #c7842d;
+    text-shadow:
+      0 1px 0 rgba(255, 239, 200, 0.8),
+      0 0 5px rgba(244, 188, 78, 0.35),
+      0 0 10px rgba(255, 223, 148, 0.25);
+    transform: translateY(0);
+  }
+  30%,
+  70% {
+    color: #d39035;
+    text-shadow:
+      0 1px 0 rgba(255, 239, 200, 0.9),
+      0 0 8px rgba(244, 188, 78, 0.45),
+      0 0 16px rgba(255, 223, 148, 0.33);
+    transform: translateY(-0.4px);
+  }
+  50% {
+    color: #da9940;
+    text-shadow:
+      0 1px 0 rgba(255, 239, 200, 0.95),
+      0 0 10px rgba(244, 188, 78, 0.55),
+      0 0 18px rgba(255, 223, 148, 0.4);
+    transform: translateY(-0.6px);
+  }
+}
+
+@keyframes ava-ai-line {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translateX(-50%) scaleX(0.8);
+  }
+  30%,
+  70% {
+    opacity: 0.68;
+    transform: translateX(-50%) scaleX(0.92);
+  }
+  50% {
+    opacity: 0.78;
+    transform: translateX(-50%) scaleX(0.98);
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .subtitle-name,
+  .subtitle-name::after {
+    animation: none;
+  }
+}
+
+/* =========================================================
+  4) Chat module
+  ========================================================= */
 .chatbox {
   margin: 40px 0;
+  animation: chatbox-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Top row controls (new/save/delete/select) */
+.chat-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.toolbar-btn {
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  transition:
+    background 0.2s,
+    color 0.2s,
+    transform 0.2s;
+}
+
+.toolbar-btn:hover {
+  background: #f1f1f1;
+  transform: translateY(-1px);
+}
+
+.toolbar-btn:focus,
+.chat-library-select:focus {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+.chat-library-select {
+  min-width: 220px;
+  border: 1px solid #000;
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 12px;
+  cursor: pointer;
 }
 
 .chat-window {
@@ -43,24 +426,132 @@ body {
   line-height: 1.5;
   overflow-y: auto;
   background: #fafafa;
-  white-space: pre-line;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  /* Keep motion smooth while preventing layout shift when scrollbar appears. */
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #9f9f9f #f1f1f1;
 }
 
-/* messages */
-.msg {
-  margin-bottom: 14px;
-  line-height: 1.5;
+/* WebKit scrollbar styling (Chrome, Edge, Safari) */
+.chat-window::-webkit-scrollbar {
+  width: 10px;
 }
 
-.msg.user {
-  color: #000;
+.chat-window::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 999px;
 }
 
-.msg.ai {
-  color: #666666;
+.chat-window::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #b5b5b5 0%, #8f8f8f 100%);
+  border-radius: 999px;
+  border: 2px solid #f1f1f1;
 }
 
-/* input row */
+.chat-window::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #9e9e9e 0%, #7d7d7d 100%);
+}
+
+@keyframes chatbox-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Messages rendered as left/right bubbles */
+.message-row {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.message-row.message-row-enter {
+  animation: message-row-rise 260ms ease-out both;
+}
+
+@keyframes message-row-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-row.user {
+  justify-content: flex-end;
+}
+
+.message-row.assistant {
+  justify-content: flex-start;
+}
+
+.chat-bubble {
+  max-width: 78%;
+  border-radius: 16px;
+  padding: 10px 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  transform-origin: bottom center;
+}
+
+.chat-bubble.bubble-enter {
+  animation: bubble-settle 240ms ease-out both;
+}
+
+@keyframes bubble-settle {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.message-row.user .chat-bubble {
+  background: #000;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.message-row.assistant .chat-bubble {
+  background: #e9ecef;
+  color: #1f1f1f;
+  border-bottom-left-radius: 4px;
+}
+
+.message-sender {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.message-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Message input row */
 .chat-form {
   display: flex;
   gap: 12px;
@@ -72,11 +563,16 @@ body {
   padding: 12px;
   border: 1px solid #ccc;
   font-size: 18px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .chat-form input:focus {
   outline: 2px solid #000;
   outline-offset: 2px;
+  transform: translateY(-1px);
 }
 
 .chat-form button {
@@ -91,7 +587,11 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.3s;
+  transition:
+    background 0.3s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 .chat-form button .material-icons {
@@ -100,6 +600,7 @@ body {
 
 .chat-form button:hover {
   background: #666666;
+  transform: translateY(-1px);
 }
 
 .chat-form button:focus {
@@ -107,7 +608,67 @@ body {
   outline-offset: 2px;
 }
 
-/* visually hidden */
+.chat-form button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chatbox,
+  .chat-bubble,
+  .message-row.message-row-enter,
+  body::before,
+  body::after,
+  .eternal-circles .circle {
+    animation: none !important;
+  }
+
+  .chat-window {
+    scroll-behavior: auto;
+  }
+
+  .chat-form input,
+  .chat-form button,
+  .toolbar-btn {
+    transition: none;
+  }
+}
+
+/* Mobile layout tweaks */
+@media (max-width: 640px) {
+  body::after {
+    inset: 46% -18% -34%;
+    transform: perspective(740px) rotateX(70deg);
+    opacity: 0.26;
+  }
+
+  .eternal-circles .circle {
+    opacity: 0.7;
+  }
+
+  .page-wrapper {
+    width: 94%;
+    padding: 8px 14px 0;
+    border-radius: 14px;
+  }
+
+  .chat-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+  }
+
+  .chat-library-select {
+    width: 100%;
+  }
+
+  .chat-library-buttons {
+    width: 100%;
+    flex: none;
+  }
+}
+
+/* Utility class for accessible labels hidden visually */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -120,7 +681,9 @@ body {
   border: 0;
 }
 
-/* footer */
+/* =========================================================
+  5) Footer
+  ========================================================= */
 .site-footer {
   margin: 60px 0 40px;
   text-align: center;

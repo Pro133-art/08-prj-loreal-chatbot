@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat Assistant</title>
+    <title>L'Oreal</title>
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
@@ -16,19 +16,60 @@
   </head>
 
   <body>
+    <!-- Decorative background layer (purely visual) -->
+    <div class="eternal-circles" aria-hidden="true">
+      <span class="circle circle-1"></span>
+      <span class="circle circle-2"></span>
+      <span class="circle circle-3"></span>
+      <span class="circle circle-4"></span>
+      <span class="circle circle-5"></span>
+      <span class="circle circle-6"></span>
+      <span class="circle circle-7"></span>
+    </div>
+
     <div class="page-wrapper">
-      <!------- Header / Branding ------->
+      <!-- Header / Branding -->
       <header class="site-header">
-        <h1 class="site-title">Smart Product Advisor</h1>
+        <h1 class="site-title">
+          <span class="site-title-rest">L'</span>
+          <span class="site-title-o">O</span>
+          <span class="site-title-rest site-title-rest-end">RÉAL</span>
+        </h1>
+        <h2 class="site-subtitle">
+          Meet <span class="subtitle-name">Ava !</span>
+        </h2>
+        <h3 class="site-subtitle">Your Elite Product Advisor</h3>
       </header>
 
-      <!------- Chat Area ------->
+      <!-- Main chat experience -->
       <main>
         <section class="chatbox">
+          <!-- Chat controls: create, rename, delete, and switch chats -->
+          <div class="chat-toolbar">
+            <button type="button" id="newChatBtn" class="toolbar-btn">
+              New Chat
+            </button>
+
+            <button type="button" id="saveChatBtn" class="toolbar-btn">
+              Save Chat
+            </button>
+
+            <button type="button" id="deleteChatBtn" class="toolbar-btn">
+              Delete Chat
+            </button>
+
+            <label for="chatLibrarySelect" class="visually-hidden">
+              Select saved chat
+            </label>
+            <select id="chatLibrarySelect" class="chat-library-select"></select>
+          </div>
+
+          <!-- Messages are rendered here by script.js -->
           <div id="chatWindow" class="chat-window">
             <!-- messages will be appended here via JS -->
           </div>
 
+          <!-- User input form -->
           <form id="chatForm" class="chat-form">
             <label for="userInput" class="visually-hidden">Message</label>
             <input
@@ -47,7 +88,7 @@
         </section>
       </main>
 
-      <!------- Footer Links ------->
+      <!-- Footer -->
       <footer class="site-footer">
         <p>&copy; 2025 Company Name. All rights reserved.</p>
         <nav>
@@ -59,8 +100,6 @@
       </footer>
     </div>
 
-    <!-- secrets.js can be removed when using Cloudflare Workers for API requests -->
-    <script src="secrets.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
